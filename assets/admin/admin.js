@@ -5,6 +5,7 @@ jQuery(document).ready(function ($) {
 
         init: function () {
             this.bindEvents();
+            this.loadExistingData();
         },
 
         bindEvents: function () {
@@ -63,7 +64,7 @@ jQuery(document).ready(function ($) {
 
             // Upload button
             $(document).on('click', '#ppr-upload-btn', function () {
-                
+                self.uploadFile();
             });
 
             // Modal close
@@ -165,11 +166,22 @@ jQuery(document).ready(function ($) {
                     }
 
                     var preview_data = results.data.slice(0, 20);
+                    preview_data = preview_data.map(function (row) {
+                        var newRow = {};
+                        Object.keys(row).forEach(function (key) {
+                            newRow[key.toLowerCase()] = row[key];
+                        });
+                        return newRow;
+                    });
+
+                    // console.log(self.previewData);
                     self.previewData = {
                         headers: headers,
                         preview_data: preview_data,
                         total_rows: results.data.length
                     };
+
+                    // console.log(self.previewData);
 
                     $('#ppr-preview-section').show();
                     self.showMessage('success', 'File ready for preview and upload. Total rows: ' + results.data.length);
@@ -197,19 +209,115 @@ jQuery(document).ready(function ($) {
 
             // Data rows
             this.previewData.preview_data.forEach(function (row) {
-                console.log(row);
+                // console.log(row);
                 html += '<tr>';
-                html += '<td>' + (row.Id || '') + '</td>';
+                html += '<td>' + (row.id || '') + '</td>';
                 html += '<td>' + (row.entry || '') + '</td>';
-                html += '<td>' + (row.lifeStats || '') + '</td>';
+                html += '<td>' + (row.lifestats || '') + '</td>';
                 html += '</tr>';
             });
 
             html += '</tbody></table>';
-                html += '<p><em>Showing first ' + this.previewData.preview_data.length + ' rows of ' + this.previewData.total_rows + ' total rows.</em></p>';
+            html += '<p><em>Showing first ' + this.previewData.preview_data.length + ' rows of ' + this.previewData.total_rows + ' total rows.</em></p>';
 
             $('#ppr-preview-table').html(html);
             $('#ppr-preview-modal').show();
+        },
+
+        uploadFile: function () {
+            var self = this;
+            var mode = $('input[name="ppr_upload_mode"]:checked').val();
+            var formData = new FormData();
+
+            formData.append('action', 'ppr_upload_csv');
+            formData.append('nonce', ppr_ajax.nonce);
+            formData.append('csv_file', this.selectedFile);
+            formData.append('mode', mode);
+
+            // Show loading state
+            $('#ppr-upload-btn').prop('disabled', true).text('Uploading...');
+
+            $.ajax({
+                url: ppr_ajax.ajax_url,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#ppr-upload-btn').prop('disabled', false).text('Upload Data');
+
+                    if (response.success) {
+                        self.showMessage('success', response.data.message);
+                        self.resetForm();
+                        self.loadExistingData();
+                    } else {
+                        self.showMessage('error', response.data);
+                    }
+                },
+                error: function () {
+                    $('#ppr-upload-btn').prop('disabled', false).text('Upload Data');
+                    self.showMessage('error', 'An error occurred while uploading the file. Please try again.');
+                }
+            });
+        },
+
+        loadExistingData: function () {
+            var self = this;
+
+            // Show loading
+            $('#ppr-data-loading').show();
+            $('#ppr-data-list').hide();
+
+            $.ajax({
+                url: ppr_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'ppr_get_data',
+                    nonce: ppr_ajax.nonce
+                },
+                success: function (response) {
+                    $('#ppr-data-loading').hide();
+
+                    if (response.success) {
+                        // console.log(response.data);
+                        self.displayExistingData(response.data);
+                    } else {
+                        $('#ppr-data-list').html('<p>Error loading data.</p>').show();
+                    }
+                },
+                error: function () {
+                    $('#ppr-data-loading').hide();
+                    $('#ppr-data-list').html('<p>Error loading data.</p>').show();
+                }
+            });
+        },
+
+        displayExistingData: function (data) {
+            var html = '';
+
+            if (data.length === 0) {
+                html = '<p>No data available. Upload a CSV file to get started.</p>';
+            } else {
+                html += '<p>Total entries: ' + data.length + '</p>';
+                html += '<table class="ppr-preview-table">';
+                html += '<thead><tr>';
+                html += '<th>ID</th>';
+                html += '<th>Entry</th>';
+                html += '<th>Lifestats</th>';
+                html += '</tr></thead><tbody>';
+
+                data.forEach(function (row) {
+                    html += '<tr>';
+                    html += '<td>#' + (row.org_id || '') + '</td>';
+                    html += '<td>' + (row.entry || '') + '</td>';
+                    html += '<td>' + (row.lifestats || '') + '</td>';
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table>';
+            }
+
+            $('#ppr-data-list').html(html).show();
         },
 
 
@@ -221,9 +329,9 @@ jQuery(document).ready(function ($) {
             messagesContainer.html(html);
             messagesContainer.show();
 
-            var timeout = 5000;
+            var timeout = 10000;
             if (type === 'error') {
-                timeout = 10000;
+                timeout = 15000;
             }
 
             // Auto-hide after 5 seconds

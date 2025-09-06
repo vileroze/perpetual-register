@@ -228,47 +228,6 @@
   font-weight: 600;
 }
 
-.ppr-data-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 15px;
-  margin-top: 15px;
-}
-
-.ppr-data-item {
-  background: #fff;
-  border: 1px solid var(--ppr-data-border-color);
-  border-radius: 4px;
-  padding: 15px;
-  transition: box-shadow 0.3s ease;
-}
-
-.ppr-data-item:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.ppr-data-id {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 5px;
-  font-weight: 600;
-}
-
-.ppr-data-entry {
-  font-weight: 600;
-  font-size: 16px;
-  color: #333;
-  margin-bottom: 8px;
-  word-break: break-word;
-}
-
-.ppr-data-lifestat {
-  color: #666;
-  font-size: 14px;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
 /* Modal Styles */
 .ppr-modal {
   display: none;
