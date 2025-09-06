@@ -119,9 +119,68 @@ class PerpetualRegister {
 
     public function admin_page() {
         ?>
-        <div>
-            <h1><?php _e('Perpetual Data Manager', 'perpetual-register'); ?></h1>
+        <div class="ppr-wrapper">
+            <h1><?php _e('CSV Data Manager', 'perpetual-register'); ?></h1>
+            
+            <div id="ppr-upload-section">
+                <h2><?php _e('Upload CSV Data', 'perpetual-register'); ?></h2>
+                
+                <div id="ppr-drop-zone" class="ppr-drop-zone">
+                    <div class="ppr-drop-content">
+                        <span class="dashicons dashicons-cloud-upload"></span>
+                        <p><?php _e('Drag and drop your CSV file here, or click to select', 'perpetual-register'); ?></p>
+                        <input type="file" id="ppr-file-input" accept=".csv" style="display: none;">
+                        <div id="ppr-file-info" class="ppr-file-info" style="display: none;"></div>
+                    </div>
+                    <div id="ppr-loading" class="ppr-loading" style="display: none;">
+                        <span class="spinner is-active"></span>
+                        <p><?php _e('Processing file...', 'perpetual-register'); ?></p>
+                    </div>
+                </div>
+                
+                <div id="ppr-options" class="ppr-options" style="display: none;">
+                    <h3><?php _e('Upload Options', 'perpetual-register'); ?></h3>
+                    <label>
+                        <input type="radio" name="cdm_upload_mode" value="replace" checked>
+                        <?php _e('Replace existing data', 'perpetual-register'); ?>
+                    </label>
+                    <label>
+                        <input type="radio" name="cdm_upload_mode" value="append">
+                        <?php _e('Append to existing data', 'perpetual-register'); ?>
+                    </label>
+                </div>
+                
+                <div id="ppr-preview-section" style="display: none;">
+                    <button type="button" id="ppr-preview-btn" class="button"><?php _e('Preview Data', 'perpetual-register'); ?></button>
+                    <button type="button" id="ppr-upload-btn" class="button button-primary"><?php _e('Upload Data', 'perpetual-register'); ?></button>
+                </div>
+                
+                <div id="ppr-messages" class="ppr-messages"></div>
+            </div>
+            
+            <div id="ppr-data-section">
+                <h2><?php _e('Existing Data', 'perpetual-register'); ?></h2>
+                <div id="ppr-data-loading" class="ppr-loading" style="display: none;">
+                    <span class="spinner is-active"></span>
+                    <p><?php _e('Loading data...', 'perpetual-register'); ?></p>
+                </div>
+                <div id="ppr-data-list" class="ppr-data-list"></div>
+            </div>
         </div>
+        
+        <!-- Preview Modal -->
+        <div id="ppr-preview-modal" class="ppr-modal" style="display: none;">
+            <div class="ppr-modal-content">
+                <div class="ppr-modal-header">
+                    <h3><?php _e('CSV Preview', 'perpetual-register'); ?></h3>
+                    <span class="ppr-modal-close">&times;</span>
+                </div>
+                <div class="ppr-modal-body">
+                    <div id="ppr-preview-table"></div>
+                </div>
+            </div>
+        </div>
+        
         <?php
     }
 
