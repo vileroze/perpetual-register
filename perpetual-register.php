@@ -37,6 +37,9 @@ class PerpetualRegister
 
         add_action('wp_ajax_ppr_upload_csv', array($this, 'handle_csv_upload'));
         add_action('wp_ajax_ppr_get_data', array($this, 'get_existing_data'));
+
+        // Shortcode
+        add_shortcode('perpetual_data', array($this, 'display_perpetual_data'));
     }
 
     public function activate()
@@ -117,6 +120,12 @@ class PerpetualRegister
     public function enqueue_public_scripts()
     {
         wp_enqueue_script('jquery');
+
+        //return if shortcode not found
+        if (!is_singular() || !has_shortcode(get_post()->post_content, 'perpetual_data')) {
+            return;
+        }
+        
         wp_enqueue_script(
             'ppr-public-js',
             PPR_PLUGIN_URL . 'assets/public/public.js',
@@ -429,6 +438,37 @@ class PerpetualRegister
         );
 
         wp_send_json_success($results);
+    }
+
+
+    public function display_perpetual_data($atts) {
+        global $wpdb;
+        
+        $results = $wpdb->get_results(
+            "SELECT entry, lifestats FROM {$this->table_name} ORDER BY entry ASC",
+            ARRAY_A
+        );
+        
+        if (empty($results)) {
+            return '<p>' . __('No data available.', 'perpetual-register') . '</p>';
+        }
+        
+        $output = '<div class="perpetual-data-display">';
+        
+        foreach ($results as $row) {
+            $output .= '<div class="perpetual-data-item">';
+            $output .= '<div class="perpetual-entry">' . esc_html($row['entry']) . '</div>';
+            if (!empty($row['lifestats'])) {
+                $output .= '<div class="perpetual-lifestats">' . esc_html($row['lifestats']) . '</div>';
+            }
+            $output .= '</div>';
+        }
+
+        $output .= '<p class="no-items" style="display: none;">No entries found.</p>';
+        
+        $output .= '</div>';
+        
+        return $output;
     }
 }
 

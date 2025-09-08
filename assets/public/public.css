@@ -1,0 +1,58 @@
+
+.letter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.letter-tab {
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.letter-tab.active {
+    background-color: #ff0000;
+    color: white;
+}
+
+
+.perpetual-data-display {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.perpetual-data-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+
+.perpetual-entry, .perpetual-lifestats {
+    padding: 5px;
+}
+
+
+.filtered-items {
+    display: none;
+}
+
+.filtered-items.active {
+    display: flex;
+    flex-direction: column;
+}
+
+
+@media (max-width: 768px) {
+    .perpetual-data-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
